@@ -1,0 +1,15 @@
+# Node
+node_modules/
+
+# Cypress artifacts
+cypress/videos/
+cypress/screenshots/
+cypress/downloads/
+cypress.run.json
+
+# Allure results and report
+allure-results/
+allure-report/
+
+# State files
+cypress/fixtures/created_user.json
