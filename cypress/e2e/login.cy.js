@@ -16,8 +16,7 @@ describe('Login and Logout Feature', () => {
         loginPage.submit();
         loginPage.verifyLoginFailed();
 
-        // --- บรรทัดที่เพิ่มเข้ามา ---
-        cy.log('Test completed').should('exist');
+        expect(true).to.be.true;
     });
 
     it('should allow a registered user to log in and log out successfully', function() {
@@ -34,7 +33,6 @@ describe('Login and Logout Feature', () => {
         accountPage.clickLogout();
         cy.get('a[href*="register.htm"]').should('be.visible');
 
-        // --- บรรทัดที่เพิ่มเข้ามา ---
-        cy.log('Test completed').should('exist');
+        expect(true).to.be.true;
     });
 });

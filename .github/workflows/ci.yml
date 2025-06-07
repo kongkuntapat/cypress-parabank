@@ -1,54 +1,44 @@
-# ชื่องาน
 name: Cypress Tests and Allure Report Deployment
 
 on:
-  # ให้ทำงานเมื่อมีการ push ไปที่ branch main
   push:
     branches: [ main ]
-  # อนุญาตให้รันเองได้จากหน้า Actions
   workflow_dispatch:
 
-# ให้สิทธิ์ Action ในการเขียนข้อมูลลงใน repo (เพื่อสร้าง gh-pages branch)
 permissions:
   contents: write
 
 jobs:
-  # ชื่องานหลัก
   test-and-deploy-report:
-    # OS ที่จะใช้รัน
     runs-on: ubuntu-latest
-    
-    # ขั้นตอนการทำงาน
     steps:
-      # 1. Checkout โค้ดจาก repo ของเรา
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. รัน Cypress tests ด้วย Action สำเร็จรูป (จัดการ Caching ให้ด้วย)
-      - name: Run Cypress tests
-        uses: cypress-io/github-action@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          browser: chrome
-          headless: true
-        # ทำงานต่อแม้เทสจะล้มเหลว เพื่อให้เรายังสร้าง Report ได้
-        continue-on-error: true
+          node-version: '20'
 
-      # 3. ติดตั้ง Java (จำเป็นสำหรับ Allure)
+      - name: Install dependencies and Cypress binary
+        run: npm ci
+
+      - name: Run Cypress tests in specific order
+        run: npx cypress run --spec "cypress/e2e/register.cy.js,cypress/e2e/login.cy.js,cypress/e2e/transfer_funds.cy.js"
+        
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-
-      # 4. สร้าง Allure Report
+      
       - name: Generate Allure Report
+        if: always()
         run: npx allure generate allure-results --clean -o allure-report
         
-      # 5. Deploy โฟลเดอร์ allure-report ไปยัง branch gh-pages
       - name: Deploy Report to GitHub Pages
+        if: always()
         uses: peaceiris/actions-gh-pages@v4
         with:
-          # Token พิเศษที่ GitHub สร้างให้เองอัตโนมัติ
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          # โฟลเดอร์ที่เราต้องการจะ Deploy
           publish_dir: ./allure-report
